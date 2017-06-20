@@ -23,6 +23,7 @@
 public class SecurityPrivacy.LockPanel : ServicePanel {
 
     Settings locker;
+    Settings notis;
 
     public LockPanel () {
         Object (icon_name: "system-lock-screen",
@@ -30,24 +31,28 @@ public class SecurityPrivacy.LockPanel : ServicePanel {
     }
 
     construct {
-        locker = new Settings ("apps.light-locker");
+        locker = new Settings ("org.gnome.desktop.screensaver");
+        notis = new Settings ("org.gnome.desktop.notifications");
 
-        var lock_suspend_label = new Gtk.Label (_("Lock on sleep:"));
+        var lock_suspend_label = new Gtk.Label (_("Automatic Screen Lock:"));
         var lock_suspend_switch = new Gtk.Switch ();
-        var lock_sleep_label = new Gtk.Label (_("Lock after screen turns off:"));
-        var lock_sleep_switch = new Gtk.Switch ();
+        var lock_notifications_label = new Gtk.Label (_("Notifications on lock screen"));
+        var lock_notifications_switch = new Gtk.Switch ();
 
-        /* Synchronize lock_suspend_switch and GSettings value */
-        lock_suspend_switch.active = locker.get_boolean ("lock-on-suspend");
-        locker.bind ("lock-on-suspend", lock_suspend_switch, "active", SettingsBindFlags.DEFAULT);
 
-        if (locker.get_uint ("lock-after-screensaver") > 0)
+        /* Synchronize switches and GSettings values */
+        lock_suspend_switch.active = locker.get_boolean ("lock-enabled");
+        locker.bind ("lock-enabled", lock_suspend_switch, "active", SettingsBindFlags.DEFAULT);
+        lock_notifications_switch.active = notis.get_boolean ("show-in-lock-screen");
+        notis.bind ("show-in-lock-screen", lock_notifications_switch, "active", SettingsBindFlags.DEFAULT);
+
+        /*if (locker.get_uint ("lock-delay") = 0)
             lock_sleep_switch.active = true;
         else
             lock_sleep_switch.active = false;
 
-        locker.changed["lock-after-screensaver"].connect (() => {
-            if (locker.get_uint ("lock-after-screensaver") > 0)
+        locker.changed["lock-delay"].connect (() => {
+            if (locker.get_uint ("lock-delay") = 0)
                 lock_sleep_switch.active = true;
             else
                 lock_sleep_switch.active = false;
@@ -55,23 +60,23 @@ public class SecurityPrivacy.LockPanel : ServicePanel {
 
         lock_sleep_switch.notify["active"].connect (() => {
             if (lock_sleep_switch.active)
-                locker.set_uint ("lock-after-screensaver", 1);
+                locker.set_uint ("lock-delay", 0);
             else
-                locker.set_uint ("lock-after-screensaver", 0);
-        });
+                locker.set_uint ("lock-delay", 30);
+        });*/
 
         lock_suspend_label.halign = Gtk.Align.END;
-        lock_sleep_label.halign = Gtk.Align.END;
+        lock_notifications_label.halign = Gtk.Align.END;
         lock_suspend_label.valign = Gtk.Align.CENTER;
-        lock_sleep_label.valign = Gtk.Align.CENTER;
+        lock_notifications_label.valign = Gtk.Align.CENTER;
         lock_suspend_switch.halign = Gtk.Align.START;
-        lock_sleep_switch.halign = Gtk.Align.START;
+        lock_notifications_switch.halign = Gtk.Align.START;
 
         content_area.hexpand = true;
         content_area.halign = Gtk.Align.CENTER;
         content_area.attach (lock_suspend_label, 0, 0, 1, 1);
-        content_area.attach (lock_sleep_label, 0, 1, 1, 1);
+        content_area.attach (lock_notifications_label, 0, 1, 1, 1);
         content_area.attach (lock_suspend_switch, 1, 0, 1, 1);
-        content_area.attach (lock_sleep_switch, 1, 1, 1, 1);
+        content_area.attach (lock_notifications_switch, 1, 1, 1, 1);
     }
 }
